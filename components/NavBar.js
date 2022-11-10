@@ -1,8 +1,20 @@
 import ConnectButton from "./ConnectButton";
-
 export default function NavBar() {
+  const style={
+    container:{
+      display: 'flex',
+      flexDirection: 'row',
+      marginRightl:"3rem",
+      color:"white",
+      width:'10rem',
+      backgroundColor:"grey",
+      padding:"0.5rem",
+      borderRadius:"0.5rem",
+      justifyContent:'center',
+     }
+  }
   return (
-    <div
+        <div
       className="w-full container mx-auto p-2 "
       style={{
         backgroundColor: "black",
@@ -23,6 +35,14 @@ export default function NavBar() {
           </svg>{" "}
           NFT MARKET
         </a>
+        <li style={style.container}>
+       {/* <NavLink to="/Marketplace">Marketplace</NavLink> */}
+       Marketplace
+        </li>
+        <li style={style.container}>
+        {/* <NavLink to="/Create">Create</NavLink> */}
+        Create
+        </li>
         <div className="flex w-1/2 justify-end content-center">
           <a className="inline-block text-white-700 no-underline hover:text-blue-400 hover:text-underline text-center h-10 p-2 md:h-auto md:p-4">
             <ConnectButton />
