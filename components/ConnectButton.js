@@ -18,6 +18,24 @@ const ConnectButton = () => {
     connectWalletOnPageLoad();
   }, []);
 
+  useEffect(() => {
+    if (address) {
+      api();
+    }
+  }, [isConnected, address]);
+
+  async function api() {
+    const response = await fetch("/api/user", {
+      method: "POST",
+      body: JSON.stringify(address),
+      Headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const res = await response.json();
+    localStorage.setItem("nonce", res.message.nonce);
+  }
+
   return (
     <button
       className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium px-4 mx-2"

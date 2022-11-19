@@ -50,7 +50,7 @@ const PrettyNavBar = () => {
                 </Link>
 
                 <Link
-                  href="create"
+                  href="/create"
                   className={
                     pathname === "/create" ? selectedItemClass : otherItemClass
                   }

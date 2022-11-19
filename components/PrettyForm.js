@@ -1,13 +1,66 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import Image from "next/image";
+import { Web3Context } from "../context/Web3";
+import Web3 from "web3";
 
 const PrettyForm = () => {
+  const { connect, hasMetamask, isConnected, address } =
+    useContext(Web3Context);
+
   const [formData, setFormData] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
 
   const mintNFT = (e) => {
     e.preventDefault();
     console.log(formData);
+  };
+
+  const handleSignMessage = async () => {
+    try {
+      let web3 = new Web3(window.ethereum);
+      const signature = await web3.eth.personal.sign(
+        `I am signing my one-time nonce: ${localStorage.getItem("nonce")}`,
+        address,
+        "" // MetaMask will ignore the password argument here
+      );
+      handleAuthenticate(address, signature);
+    } catch (err) {
+      console.log(err);
+      alert("You need to connect wallet.");
+    }
+  };
+
+  const handleAuthenticate = (publicAddress, signature) => {
+    fetch(`/api/auth`, {
+      body: JSON.stringify({ publicAddress, signature }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+      });
+  };
+
+  const uploadHandler = async (e) => {
+    if (!isConnected) {
+      return alert("You need to connect wallet.");
+    }
+    await handleSignMessage();
+    const data = new FormData();
+    data.append("file", e.target.files[0]);
+
+    const response = await fetch("/api/image-upload", {
+      method: "POST",
+      body: data,
+      Headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    const res = await response.json();
+    console.log(res);
   };
 
   return (
@@ -60,7 +113,7 @@ const PrettyForm = () => {
                   id="dropzone-file"
                   type="file"
                   className="hidden"
-                  onChange={(e) => setSelectedFile(e.target.files[0])}
+                  onChange={uploadHandler}
                 />
               </label>
             </div>
