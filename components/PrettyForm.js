@@ -10,9 +10,30 @@ const PrettyForm = () => {
   const [formData, setFormData] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
 
-  const mintNFT = (e) => {
+  const mintNFT = async (e) => {
     e.preventDefault();
     console.log(formData);
+
+    var tokenUriMetadata = JSON.stringify({
+      pinataOptions: {
+        cidVersion: 1,
+      },
+      pinataMetadata: {
+        name: "IpfsNFT",
+      },
+      pinataContent: {
+        title: formData.title,
+        description: formData.desc,
+        keyvalues: {
+          image: `ipfs://${formData.imgHash}`,
+          health: formData.health,
+          speed: formData.speed,
+          attack: formData.attack,
+        },
+      },
+    });
+
+    await handleJsonUpload(tokenUriMetadata);
   };
 
   const handleSignMessage = async () => {
@@ -28,6 +49,20 @@ const PrettyForm = () => {
       console.log(err);
       alert("You need to connect wallet.");
     }
+  };
+
+  const handleJsonUpload = (metaData) => {
+    fetch(`/api/metadata-upload`, {
+      body: metaData,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+      });
   };
 
   const handleAuthenticate = (publicAddress, signature) => {
@@ -60,6 +95,10 @@ const PrettyForm = () => {
       },
     });
     const res = await response.json();
+    setFormData((prev) => ({
+      ...prev,
+      imgHash: res.data,
+    }));
     console.log(res);
   };
 
