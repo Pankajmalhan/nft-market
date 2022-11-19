@@ -10,29 +10,17 @@ const PrettyForm = () => {
   const [formData, setFormData] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
 
+  const [isMinted, setIsMinted] = useState(false);
+
   const mintNFT = async (e) => {
     e.preventDefault();
+    await handleJsonUpload();
+    setIsMinted(true);
+  };
 
-    var tokenUriMetadata = {
-      pinataOptions: {
-        cidVersion: 1,
-      },
-      pinataMetadata: {
-        name: "IpfsNFT",
-      },
-      pinataContent: {
-        title: formData.title,
-        description: formData.desc,
-        image: `ipfs://${formData.imgHash}`,
-        keyvalues: {
-          health: formData.health,
-          speed: formData.speed,
-          attack: formData.attack,
-        },
-      },
-    };
-
-    await handleJsonUpload(tokenUriMetadata);
+  const _mintNFT = async (e) => {
+    e.preventDefault();
+    //contract call on success show message and redirect to home
   };
 
   const handleSignMessage = async () => {
@@ -50,9 +38,9 @@ const PrettyForm = () => {
     }
   };
 
-  const handleJsonUpload = async (metaData) => {
+  const handleJsonUpload = async () => {
     fetch("/api/metadata-upload", {
-      body: JSON.stringify(metaData),
+      body: JSON.stringify(formData),
       headers: {
         "Content-Type": "application/json",
       },
@@ -60,8 +48,9 @@ const PrettyForm = () => {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
-      });
+        console.log(data.data.ipfsHash);
+      })
+      .catch((err) => console.log(err));
   };
 
   const handleAuthenticate = (publicAddress, signature) => {
@@ -82,7 +71,10 @@ const PrettyForm = () => {
     if (!isConnected) {
       return alert("You need to connect wallet.");
     }
+    setSelectedFile(e.target.files[0]);
+
     await handleSignMessage();
+
     const data = new FormData();
     data.append("file", e.target.files[0]);
 
@@ -159,134 +151,175 @@ const PrettyForm = () => {
         )}
         <>
           <form className="w-full max-w-lg mr-20">
-            <div className="flex flex-wrap -mx-3 mb-6">
-              <div className="w-full md:w-full px-3 mb-6 md:mb-0">
+            {!isMinted ? (
+              <>
+                <div className="flex flex-wrap -mx-3 mb-6">
+                  <div className="w-full md:w-full px-3 mb-6 md:mb-0">
+                    <label
+                      className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                      for="grid-first-name"
+                    >
+                      Title
+                    </label>
+                    <input
+                      className="block w-full bg-gray-200 text-gray-700 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+                      id="grid-first-name"
+                      type="text"
+                      placeholder="Axie Infinity"
+                      value={formData.title}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
+                      }
+                    />
+                    <p className="text-red-500 text-xs italic hidden">
+                      Please fill out this field.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap -mx-3 mb-6">
+                  <div className="w-full px-3">
+                    <label
+                      className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                      for="grid-password"
+                    >
+                      Description
+                    </label>
+                    <textarea
+                      className="text-sm block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                      id="grid-password"
+                      rows={7}
+                      placeholder="Whats in your NFT?"
+                      value={formData.desc}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          desc: e.target.value,
+                        }))
+                      }
+                    />
+                    <p className="text-gray-600 text-xs italic">
+                      Make it as long and as crazy as you'd like
+                    </p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap -mx-3 mb-2">
+                  <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+                    <label
+                      className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                      for="grid-city"
+                    >
+                      Health
+                    </label>
+                    <input
+                      className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                      id="grid-city"
+                      type="number"
+                      placeholder="87291"
+                      value={formData.health}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          health: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                  <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+                    <label
+                      className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                      for="grid-state"
+                    >
+                      Speed
+                    </label>
+                    <div className="relative">
+                      <select
+                        className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                        id="grid-state"
+                        value={formData.speed}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            speed: e.target.value,
+                          }))
+                        }
+                      >
+                        <option>Slow</option>
+                        <option>Fast</option>
+                        <option>Undefined</option>
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <svg
+                          className="fill-current h-4 w-4"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+                    <label
+                      className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                      for="grid-zip"
+                    >
+                      Attack
+                    </label>
+                    <input
+                      className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                      id="grid-zip"
+                      type="number"
+                      placeholder="90210"
+                      value={formData.attack}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          attack: e.target.value,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+                <button
+                  className="w-full px-4 py-4 mr-4 my-2 text-sm font-medium text-center text-white bg-gray-800 rounded-lg"
+                  onClick={(e) => mintNFT(e)}
+                >
+                  Mint
+                </button>
+              </>
+            ) : (
+              <>
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                   for="grid-first-name"
                 >
-                  Title
+                  Enter Price
                 </label>
                 <input
                   className="block w-full bg-gray-200 text-gray-700 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
                   id="grid-first-name"
-                  type="text"
-                  placeholder="Axie Infinity"
+                  type="number"
+                  placeholder="ETH"
                   value={formData.title}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, title: e.target.value }))
-                  }
-                />
-                <p className="text-red-500 text-xs italic hidden">
-                  Please fill out this field.
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap -mx-3 mb-6">
-              <div className="w-full px-3">
-                <label
-                  className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                  for="grid-password"
-                >
-                  Description
-                </label>
-                <textarea
-                  className="text-sm block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                  id="grid-password"
-                  rows={7}
-                  placeholder="Whats in your NFT?"
-                  value={formData.desc}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, desc: e.target.value }))
-                  }
-                />
-                <p className="text-gray-600 text-xs italic">
-                  Make it as long and as crazy as you'd like
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap -mx-3 mb-2">
-              <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-                <label
-                  className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                  for="grid-city"
-                >
-                  Health
-                </label>
-                <input
-                  className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                  id="grid-city"
-                  type="number"
-                  placeholder="87291"
-                  value={formData.health}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, health: e.target.value }))
-                  }
-                />
-              </div>
-              <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-                <label
-                  className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                  for="grid-state"
-                >
-                  Speed
-                </label>
-                <div className="relative">
-                  <select
-                    className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                    id="grid-state"
-                    value={formData.speed}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        speed: e.target.value,
-                      }))
-                    }
-                  >
-                    <option>Slow</option>
-                    <option>Fast</option>
-                    <option>Undefined</option>
-                  </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                    <svg
-                      className="fill-current h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-                <label
-                  className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                  for="grid-zip"
-                >
-                  Attack
-                </label>
-                <input
-                  className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                  id="grid-zip"
-                  type="number"
-                  placeholder="90210"
-                  value={formData.attack}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      attack: e.target.value,
+                      title: e.target.value,
                     }))
                   }
                 />
-              </div>
-            </div>
-            <button
-              className="w-full px-4 py-4 mr-4 my-2 text-sm font-medium text-center text-white bg-gray-800 rounded-lg"
-              onClick={(e) => mintNFT(e)}
-            >
-              Mint
-            </button>
+                <button
+                  className="w-full px-4 py-4 mr-4 my-2 text-sm font-medium text-center text-white bg-gray-800 rounded-lg"
+                  onClick={(e) => _mintNFT(e)}
+                >
+                  Mint
+                </button>
+              </>
+            )}
           </form>
         </>
       </div>

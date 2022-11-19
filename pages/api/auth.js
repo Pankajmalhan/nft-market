@@ -18,7 +18,7 @@ async function handler(req, res) {
     const db = client.db();
     const users = db.collection("users");
     let user = await users.findOne({
-      publicAddress: publicAddress,
+      publicAddress: publicAddress.toLowerCase(),
     });
 
     // Step 1: Get the user with the given publicAddress
@@ -42,13 +42,7 @@ async function handler(req, res) {
     }
 
     const user_id = user._id;
-    let update_nonce = await users.findOneAndUpdate(
-      {
-        _id: user_id,
-      },
-      { $set: { nonce: uuidv4() } }
-    );
-    console.log(update_nonce);
+
     client.close();
     res.status(200).send({ message: "you are authenticated" });
   }

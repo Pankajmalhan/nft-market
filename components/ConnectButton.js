@@ -25,15 +25,18 @@ const ConnectButton = () => {
   }, [isConnected, address]);
 
   async function api() {
-    const response = await fetch("/api/user", {
+    fetch("/api/user", {
       method: "POST",
       body: JSON.stringify(address),
       Headers: {
         "Content-Type": "application/json",
       },
-    });
-    const res = await response.json();
-    localStorage.setItem("nonce", res.message.nonce);
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        localStorage.setItem("nonce", res.message.nonce);
+      })
+      .catch((err) => console.log(err));
   }
 
   return (

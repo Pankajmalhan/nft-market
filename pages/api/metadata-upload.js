@@ -4,21 +4,38 @@ const JWT =
 
 async function handler(req, res) {
   if (req.method == "POST") {
-    console.log(req.body);
-    const tokenUriMetadata = JSON.parse(req.body);
+    var tokenUriMetadata = JSON.stringify({
+      pinataOptions: {
+        cidVersion: 1,
+      },
+      pinataMetadata: {
+        name: "IpfsNFT",
+      },
+      pinataContent: {
+        title: req.body.title,
+        description: req.body.desc,
+        image: `ipfs://${req.body.imgHash}`,
+        keyvalues: {
+          attack: req.body.attack,
+          speed: req.body.speed,
+          health: req.body.health,
+        },
+      },
+    });
+
     var config = {
       method: "post",
-      url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
+      url: "https://api.pinata.cloud/pinning/pinJSONToIPFS",
       headers: {
-        Authorization: `Bearer ${JWT}`,
-        // ...data.getHeaders(),
         "Content-Type": "application/json",
+        Authorization: `Bearer ${JWT}`,
       },
       data: tokenUriMetadata,
     };
-    let ipfs_response = await axios(config);
-    console.log(ipfs_response.data.IpfsHash);
-    res.status(200).send({ data: ipfs_response.data.IpfsHash });
+
+    const response = await axios(config);
+
+    res.status(200).send({ data: response.data.IpfsHash });
   }
 }
 
