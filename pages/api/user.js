@@ -6,7 +6,9 @@ async function handler(req, res) {
     const publicAddress = JSON.parse(req.body);
     const data = { publicAddress: publicAddress, nonce: uuidv4() };
     console.log(data);
-    const client = await MongoClient.connect("mongodb://localhost:27017/NFT");
+    const client = await MongoClient.connect(
+      "mongodb+srv://DbUser:12345@cluster0.wlidh.mongodb.net/NFTS"
+    );
 
     const db = client.db();
     const users = db.collection("users");

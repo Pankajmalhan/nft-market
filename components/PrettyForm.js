@@ -12,9 +12,8 @@ const PrettyForm = () => {
 
   const mintNFT = async (e) => {
     e.preventDefault();
-    console.log(formData);
 
-    var tokenUriMetadata = JSON.stringify({
+    var tokenUriMetadata = {
       pinataOptions: {
         cidVersion: 1,
       },
@@ -24,14 +23,14 @@ const PrettyForm = () => {
       pinataContent: {
         title: formData.title,
         description: formData.desc,
+        image: `ipfs://${formData.imgHash}`,
         keyvalues: {
-          image: `ipfs://${formData.imgHash}`,
           health: formData.health,
           speed: formData.speed,
           attack: formData.attack,
         },
       },
-    });
+    };
 
     await handleJsonUpload(tokenUriMetadata);
   };
@@ -51,9 +50,9 @@ const PrettyForm = () => {
     }
   };
 
-  const handleJsonUpload = (metaData) => {
-    fetch(`/api/metadata-upload`, {
-      body: metaData,
+  const handleJsonUpload = async (metaData) => {
+    fetch("/api/metadata-upload", {
+      body: JSON.stringify(metaData),
       headers: {
         "Content-Type": "application/json",
       },

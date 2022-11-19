@@ -11,7 +11,9 @@ async function handler(req, res) {
         .status(400)
         .send({ error: "Request should have signature and publicAddress" });
 
-    const client = await MongoClient.connect("mongodb://localhost:27017/NFT");
+    const client = await MongoClient.connect(
+      "mongodb+srv://DbUser:12345@cluster0.wlidh.mongodb.net/NFTS"
+    );
 
     const db = client.db();
     const users = db.collection("users");
@@ -38,7 +40,7 @@ async function handler(req, res) {
     if (address.toLowerCase() != publicAddress.toLowerCase()) {
       return res.status(401).send({ error: "Signature verification failed" });
     }
-    
+
     const user_id = user._id;
     let update_nonce = await users.findOneAndUpdate(
       {

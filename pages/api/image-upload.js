@@ -53,9 +53,9 @@ apiRoute.post(async (req, res) => {
       },
       data: data,
     };
-    let reso = await axios(config);
-    console.log("IMAGE IPFS HASH: ", reso.data.IpfsHash);
-    res.status(200).send({ data: reso.data.IpfsHash });
+    let ipfs_response = await axios(config);
+    console.log("IMAGE IPFS HASH: ", ipfs_response.data.IpfsHash);
+    res.status(200).send({ data: ipfs_response.data.IpfsHash });
   } catch (err) {
     res.status(400).send({ error: err });
   }
