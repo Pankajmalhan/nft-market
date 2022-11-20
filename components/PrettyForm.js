@@ -4,18 +4,14 @@ import { Web3Context } from "../context/Web3";
 import Web3 from "web3";
 
 const PrettyForm = () => {
-  const { connect, hasMetamask, isConnected, address } =
-    useContext(Web3Context);
-
+  const { nonce, isConnected, address } = useContext(Web3Context);
   const [formData, setFormData] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
-
   const [isMinted, setIsMinted] = useState(false);
 
   const mintNFT = async (e) => {
     e.preventDefault();
-    await handleJsonUpload();
-    setIsMinted(true);
+    await handleNFTUpload();
   };
 
   const _mintNFT = async (e) => {
@@ -27,7 +23,7 @@ const PrettyForm = () => {
     try {
       let web3 = new Web3(window.ethereum);
       const signature = await web3.eth.personal.sign(
-        `I am signing my one-time nonce: ${localStorage.getItem("nonce")}`,
+        `I am signing my one-time nonce: ${nonce}`,
         address,
         "" // MetaMask will ignore the password argument here
       );
@@ -36,21 +32,6 @@ const PrettyForm = () => {
       console.log(err);
       alert("You need to connect wallet.");
     }
-  };
-
-  const handleJsonUpload = async () => {
-    fetch("/api/metadata-upload", {
-      body: JSON.stringify(formData),
-      headers: {
-        "Content-Type": "application/json",
-      },
-      method: "POST",
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data.data.ipfsHash);
-      })
-      .catch((err) => console.log(err));
   };
 
   const handleAuthenticate = (publicAddress, signature) => {
@@ -62,35 +43,64 @@ const PrettyForm = () => {
       method: "POST",
     })
       .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
+      .then((res) => {
+        console.log(res);
       });
   };
 
-  const uploadHandler = async (e) => {
-    if (!isConnected) {
-      return alert("You need to connect wallet.");
-    }
-    setSelectedFile(e.target.files[0]);
+  const handleNFTUpload = async (e) => {
+    handleSignMessage()
+      .then(() => {
+        sendImageToBackend()
+          .then(() => {
+            sendJsonToBackend(formData)
+              .then(() => {
+                alert("NFT Uploaded to IPFS");
+                setIsMinted(true);
+              })
+              .catch((err) => alert(err));
+          })
+          .catch((err) => alert(err));
+      })
+      .catch((err) => alert(err));
+  };
 
-    await handleSignMessage();
+  const sendJsonToBackend = async (formData) => {
+    fetch("/api/metadata-upload", {
+      body: JSON.stringify(formData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+    })
+      .then((response) => response.json())
+      .then((res) => {
+        setFormData((prev) => ({
+          ...prev,
+          jsonHash: res.data,
+        }));
+      })
+      .catch((err) => console.log(err));
+  };
 
+  const sendImageToBackend = async () => {
     const data = new FormData();
-    data.append("file", e.target.files[0]);
+    data.append("file", selectedFile);
 
-    const response = await fetch("/api/image-upload", {
+    fetch("/api/image-upload", {
       method: "POST",
       body: data,
       Headers: {
         "Content-Type": "multipart/form-data",
       },
-    });
-    const res = await response.json();
-    setFormData((prev) => ({
-      ...prev,
-      imgHash: res.data,
-    }));
-    console.log(res);
+    })
+      .then((res) => res.json())
+      .then((res) =>
+        setFormData((prev) => ({
+          ...prev,
+          imgHash: res.data,
+        }))
+      );
   };
 
   return (
@@ -143,7 +153,8 @@ const PrettyForm = () => {
                   id="dropzone-file"
                   type="file"
                   className="hidden"
-                  onChange={uploadHandler}
+                  onChange={(e) => setSelectedFile(e.target.files[0])}
+                  disabled={!isConnected}
                 />
               </label>
             </div>
@@ -288,7 +299,7 @@ const PrettyForm = () => {
                   className="w-full px-4 py-4 mr-4 my-2 text-sm font-medium text-center text-white bg-gray-800 rounded-lg"
                   onClick={(e) => mintNFT(e)}
                 >
-                  Mint
+                  Upload to IPFS
                 </button>
               </>
             ) : (
@@ -304,17 +315,18 @@ const PrettyForm = () => {
                   id="grid-first-name"
                   type="number"
                   placeholder="ETH"
-                  value={formData.title}
+                  value={formData.price}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      title: e.target.value,
+                      price: e.target.value,
                     }))
                   }
                 />
                 <button
                   className="w-full px-4 py-4 mr-4 my-2 text-sm font-medium text-center text-white bg-gray-800 rounded-lg"
                   onClick={(e) => _mintNFT(e)}
+                  disabled={!isConnected}
                 >
                   Mint
                 </button>

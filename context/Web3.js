@@ -23,6 +23,7 @@ const Web3Provider = ({ children }) => {
   const [address, setAddress] = useState(undefined);
   const [network, setNetwork] = useState(undefined);
   const [provider, setProvider] = useState(undefined);
+  const [nonce, setNonce] = useState(undefined);
 
   useEffect(() => {
     if (typeof window.ethereum !== "undefined") {
@@ -53,6 +54,28 @@ const Web3Provider = ({ children }) => {
     // setContract(contract);
   }
 
+  useEffect(() => {
+    if (address) {
+      getNonce();
+    }
+  }, [address]);
+
+  function getNonce() {
+    fetch("/api/user", {
+      method: "POST",
+      body: JSON.stringify(address),
+      Headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        console.log("Getting the nonce", res.message);
+        setNonce(res.message);
+      })
+      .catch((err) => console.log(err));
+  }
+
   async function connect() {
     if (typeof window.ethereum !== "undefined") {
       try {
@@ -78,6 +101,8 @@ const Web3Provider = ({ children }) => {
         address,
         network,
         provider,
+        nonce,
+        setNonce,
       }}
     >
       {children}
