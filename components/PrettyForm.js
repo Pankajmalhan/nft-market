@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 
 const PrettyForm = () => {
   const router = useRouter();
-  const { isConnected, isAuthenticated, contract, signer } =
+  const { isConnected, isAuthenticated, contract, signer, handleSignIn } =
     useContext(Web3Context);
   const [formData, setFormData] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
@@ -39,13 +39,11 @@ const PrettyForm = () => {
   };
 
   const handleNFTUpload = async (e) => {
-    isAuthenticated
-      ? sendImageToBackend()
-          .then(() => {
-            setIsMinted(true);
-          })
-          .catch((err) => alert(err))
-      : alert("Sign in first");
+    handleSignIn()
+      .then(async () => {
+        await sendImageToBackend();
+      })
+      .catch((err) => alert(err));
   };
 
   const sendJsonToBackend = async (imageHash, formData) => {
@@ -65,6 +63,7 @@ const PrettyForm = () => {
           ...prev,
           jsonHash: res.data,
         }));
+        setIsMinted(true);
       })
       .catch((err) => console.log(err));
   };
@@ -89,9 +88,7 @@ const PrettyForm = () => {
       <div className="self-center">
         <h1 className="my-4 text-4xl font-extrabold tracking-tight leading-none text-gray-900">
           Mint your{" "}
-          <span className="text-blue-600 dark:text-blue-500" onClick={_mintNFT}>
-            NFT.
-          </span>
+          <span className="text-blue-600 dark:text-blue-500">NFT.</span>
         </h1>
       </div>
       <div className="flex justify-around items-center ml-10 gap-x-4">
@@ -288,6 +285,15 @@ const PrettyForm = () => {
               </>
             ) : (
               <>
+                <div className="my-4 flex flex-col items-center ml-4">
+                  <span className="text-gray-400 text-sm">
+                    NFT Uploaded to:
+                  </span>
+                  <a className="text-gray-500 text-sm">
+                    {" "}
+                    {`https://ipfs.io/ipfs/${formData.jsonHash}`}
+                  </a>
+                </div>
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                   for="grid-first-name"
