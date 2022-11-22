@@ -195,10 +195,10 @@ contract NftMarket is ERC721URIStorage, ERC721Enumerable, Ownable {
             tokenId,
             price,
             msg.sender,
-            true,
+            false,
             _tokenURI
         );
 
-        emit NftItemCreated(tokenId, price, msg.sender, true);
+        emit NftItemCreated(tokenId, price, msg.sender, false);
     }
 }
