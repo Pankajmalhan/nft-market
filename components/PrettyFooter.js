@@ -1,7 +1,7 @@
 const PrettyFooter = () => {
   return (
     <div className="flex flex-col mt-20">
-      <footer className="p-4 bg-white rounded-lg shadow md:px-6 md:py-4 dark:bg-gray-900 max-h-28">
+      <footer className="p-4 bg-white rounded-lg shadow md:px-6 md:py-4 max-h-28">
         <div className="sm:flex sm:items-center sm:justify-between">
           <a
             href="https://www.tftus.com/"
