@@ -1,9 +1,12 @@
 import Link from "next/link";
+import { useContext } from "react";
+import { Web3Context } from "../context/Web3";
 import styles from "./PreetyCard.module.css";
 
 const PrettyCard = ({ nft }) => {
   let image_ipfs = nft.image.substring(nft.image.lastIndexOf("/") + 1);
   nft.image = `https://ipfs.io/ipfs/${image_ipfs}`;
+
   return (
     <>
       <div

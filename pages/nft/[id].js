@@ -2,10 +2,32 @@ import { useRouter } from "next/router";
 import { ShoppingCartOutlined, DollarOutlined } from "@ant-design/icons";
 import CountDown from "../../components/CountDown";
 import styles from "../../styles/Details.module.css";
+import { BigNumber, ethers } from "ethers";
+import { useContext } from "react";
+import { Web3Context } from "../../context/Web3";
+import Web3 from "web3";
 
 const DetailPage = () => {
+  const { contract, isConnected, signer } = useContext(Web3Context);
+
   const router = useRouter();
   const nft = router.query;
+
+  const handleBuyTokenETH = async () => {
+    console.log("clicked");
+    try {
+      if (isConnected) {
+        let contractWithSigner = contract.connect(signer);
+        let tx = await contractWithSigner.buyNft(nft.price, {
+          value: ethers.utils.parseEther(nft.price),
+        });
+        await tx.wait();
+        console.log(tx);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "row", width: "100%" }}>
@@ -68,6 +90,7 @@ const DetailPage = () => {
             className={
               "AddtoCart bg-gray-800 hover:bg-gray-400 text-white font-bold my-1 py-5 px-0 rounded-2xl w-4/12 m-6"
             }
+            onClick={handleBuyTokenETH}
           >
             <DollarOutlined style={{ fontSize: "1.5rem" }} /> {nft.price} ETH
           </button>
