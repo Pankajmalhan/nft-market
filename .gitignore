@@ -60,3 +60,4 @@ hardhat/next-env.d.ts
 hardhat/hardhat/node_modules/
 hardhat/cache
 hardhat/artifacts/
+hardhat/deployments/
