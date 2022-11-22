@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { NFTContext } from "../context/NFTs";
-import Card from "./PrettyCard";
+import Card from "./OwnerCard";
 import {
   SketchOutlined,
   DollarOutlined,
@@ -23,7 +23,7 @@ export const EmptyPage = () => {
 };
 
 const NotSoPrettyProfile = () => {
-  const { NFTs } = useContext(NFTContext);
+  const { ownedNFTs: NFTs } = useContext(NFTContext);
   const [openTab, setOpenTab] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
