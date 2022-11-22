@@ -19,7 +19,8 @@ const OwnerCard = ({ nft }) => {
         });
         await tx.wait();
 
-        alert("NFT Minted");
+        alert("NFT sent to MarketPlace");
+        router.push("/");
       } else {
         alert("Please Connect");
       }
@@ -62,8 +63,9 @@ const OwnerCard = ({ nft }) => {
             <button
               className="inline-flex w-18 items-center px-4 py-2 text-sm font-medium text-center text-white bg-gray-800 rounded-lg"
               onClick={() => handleForSale()}
+              disabled={nft.isListed}
             >
-              Send to Market
+              {nft.isListed ? "Listed" : "Send to Market"}
             </button>
             <div className="flex justify-center items-center gap-x-2">
               <button className="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-gray-800 rounded-lg">

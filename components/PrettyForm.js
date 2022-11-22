@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import Image from "next/image";
 import { Web3Context } from "../context/Web3";
 import { ethers } from "ethers";
@@ -46,6 +46,12 @@ const PrettyForm = () => {
       .catch((err) => alert(err));
   };
 
+  useEffect(() => {
+    if (isAuthenticated && formData.jsonHash) {
+      setIsMinted(true);
+    }
+  }, [isAuthenticated]);
+
   const sendJsonToBackend = async (imageHash, formData) => {
     fetch("/api/upload/json", {
       body: JSON.stringify({
@@ -63,7 +69,6 @@ const PrettyForm = () => {
           ...prev,
           jsonHash: res.data,
         }));
-        setIsMinted(true);
       })
       .catch((err) => console.log(err));
   };

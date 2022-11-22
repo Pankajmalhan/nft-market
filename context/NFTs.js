@@ -29,12 +29,13 @@ const NFTProvider = ({ children }) => {
       let resp = await get_data(`https://ipfs.io/ipfs/${res._tokenURI}`);
       resp = {
         ...resp,
+        isListed: res.isListed,
         id: Number(res.tokenId),
         price: Number(res.price._hex),
         creator: res.creator,
       };
       nf.push(resp);
-      setOwnedNFTs(...ownedNFTs, nf);
+      setOwnedNFTs(nf);
     });
   };
 
@@ -46,7 +47,7 @@ const NFTProvider = ({ children }) => {
       let resp = await get_data(`https://ipfs.io/ipfs/${res._tokenURI}`);
       resp = { ...resp, price: Number(res.price._hex), creator: res.creator };
       nf.push(resp);
-      setNFTS(...NFTs, nf);
+      setNFTS(nf);
     });
   };
 
@@ -57,7 +58,11 @@ const NFTProvider = ({ children }) => {
     }
   }, [isConnected, network]);
 
-  return <Provider value={{ NFTs, ownedNFTs }}>{children}</Provider>;
+  return (
+    <Provider value={{ NFTs, ownedNFTs, getOwnedNFTs, getNFTsOnSale }}>
+      {children}
+    </Provider>
+  );
 };
 
 export { NFTProvider, NFTContext };

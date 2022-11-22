@@ -1,15 +1,21 @@
 import { Col, Row } from "antd";
 import { useState, useEffect, useContext } from "react";
 import { NFTContext } from "../context/NFTs";
+import { Web3Context } from "../context/Web3";
 import Card from "./PrettyCard";
 import { EmptyPage } from "./PrettyProfile";
 
 const MarketPlace = () => {
-  const { NFTs } = useContext(NFTContext);
+  const { address } = useContext(Web3Context);
+  const { NFTs, getNFTsOnSale } = useContext(NFTContext);
 
   useEffect(() => {
-    //make API call to backend and set NFTS
-  });
+    if (address) getNFTsOnSale();
+  }, [address]);
+
+  useEffect(() => {
+    if (address) getNFTsOnSale();
+  }, []);
 
   return (
     <>

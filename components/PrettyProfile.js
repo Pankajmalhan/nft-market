@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { NFTContext } from "../context/NFTs";
 import Card from "./OwnerCard";
 import {
@@ -10,6 +10,7 @@ import {
 } from "@ant-design/icons";
 import emptyImage from "../public/empty_state.webp";
 import Image from "next/image";
+import { Web3Context } from "../context/Web3";
 
 export const EmptyPage = () => {
   return (
@@ -23,13 +24,20 @@ export const EmptyPage = () => {
 };
 
 const NotSoPrettyProfile = () => {
-  const { ownedNFTs: NFTs } = useContext(NFTContext);
+  const { isConnected, address } = useContext(Web3Context);
+  const { ownedNFTs: NFTs, getOwnedNFTs } = useContext(NFTContext);
   const [openTab, setOpenTab] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   function logoutHandle() {
     return setIsModalOpen(!isModalOpen);
   }
+
+  useEffect(() => {
+    if (address) {
+      getOwnedNFTs();
+    }
+  }, [address]);
 
   const ProfileOptions = () => (
     <>

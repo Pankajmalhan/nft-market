@@ -12,13 +12,14 @@ const DetailPage = () => {
       <div
         style={{
           display: "flex",
-          width: "20%",
+          width: "40%",
           alignItems: "center",
           margin: "5rem",
           padding: "1rem",
           justifyContent: "center",
           alignItems: "center",
           borderRadius: "1rem",
+          height: "80%",
           // boxShadow:
           //   "rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset",
         }}
@@ -46,6 +47,7 @@ const DetailPage = () => {
           borderRadius: "1rem",
           justifyContent: "center",
           alignItems: "center",
+          height: "80%",
           boxShadow:
             "rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset",
         }}
