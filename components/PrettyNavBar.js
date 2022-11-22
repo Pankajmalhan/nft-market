@@ -5,7 +5,7 @@ import ConnectButton from "./ConnectButton";
 import { Web3Context } from "../context/Web3";
 
 const PrettyNavBar = () => {
-  const { network, isConnected } = useContext(Web3Context);
+  const { network, isConnected, disconnect } = useContext(Web3Context);
 
   const { pathname } = useRouter();
 
@@ -121,15 +121,16 @@ const PrettyNavBar = () => {
                   >
                     Settings
                   </a>
-                  <a
+                  <button
                     href="#"
                     className="block px-4 py-2 text-sm text-gray-700"
                     role="menuitem"
                     tabIndex={-1}
                     id="user-menu-item-2"
+                    onClick={disconnect}
                   >
                     Sign out
-                  </a>
+                  </button>
                 </div>
               </div>
             ) : (

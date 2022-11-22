@@ -76,6 +76,21 @@ const Web3Provider = ({ children }) => {
     }
   }
 
+  async function disconnect() {
+    try {
+      setProvider(undefined);
+      setSigner(undefined);
+      setChainID(undefined);
+      setAddress(undefined);
+      setNetwork(undefined);
+      setIsConnected(undefined);
+      setContract(undefined);
+      localStorage.setItem("isWalletConnected", false);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   async function handleSignIn() {
     if (address) {
       axios
@@ -130,6 +145,7 @@ const Web3Provider = ({ children }) => {
         nonce,
         handleSignIn,
         isAuthenticated,
+        disconnect,
       }}
     >
       {children}

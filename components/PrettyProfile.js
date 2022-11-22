@@ -11,7 +11,7 @@ import {
 import emptyImage from "../public/empty_state.webp";
 import Image from "next/image";
 
-const EmptyPage = () => {
+export const EmptyPage = () => {
   return (
     <div className="flex items-center flex-col">
       <h1 className="font-semibold text-lg">

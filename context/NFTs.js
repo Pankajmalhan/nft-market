@@ -8,7 +8,7 @@ const NFTContext = React.createContext(defaultValue);
 const { Provider, Consumer } = NFTContext;
 
 const NFTProvider = ({ children }) => {
-  const { contract, isConnected } = useContext(Web3Context);
+  const { contract, isConnected, network } = useContext(Web3Context);
 
   const [NFTs, setNFTS] = useState([]);
 
@@ -35,7 +35,7 @@ const NFTProvider = ({ children }) => {
     if (isConnected) {
       getValues();
     }
-  }, [isConnected]);
+  }, [isConnected, network]);
 
   return <Provider value={{ NFTs }}>{children}</Provider>;
 };

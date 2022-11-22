@@ -2,6 +2,7 @@ import { Col, Row } from "antd";
 import { useState, useEffect, useContext } from "react";
 import { NFTContext } from "../context/NFTs";
 import Card from "./PrettyCard";
+import { EmptyPage } from "./PrettyProfile";
 
 const MarketPlace = () => {
   const { NFTs } = useContext(NFTContext);
@@ -31,7 +32,9 @@ const MarketPlace = () => {
           {NFTs?.length > 0 ? (
             NFTs.map((nft, index) => <Card key={index} nft={nft} />)
           ) : (
-            <> No NFTS On Sale... Try Later! </>
+            <div className="h-[55vh]">
+              <EmptyPage />
+            </div>
           )}
         </Row>
       </div>
