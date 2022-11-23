@@ -156,7 +156,7 @@ contract NftMarket is ERC721URIStorage, ERC721Enumerable, Ownable {
         address owner = ERC721.ownerOf(tokenId);
 
         require(msg.sender != owner, "You already own this NFT");
-        require(msg.value == price, "Please submit the asking price");
+        require(msg.value >= price, "Please submit the asking price");
 
         _idToNftItem[tokenId].isListed = false;
         _listedItems.decrement();
