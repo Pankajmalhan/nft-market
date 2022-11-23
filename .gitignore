@@ -34,3 +34,30 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+hardhat/node_modules/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+hardhat/node_modules
+hardhat/.pnp
+hardhat/.pnp.js
+hardhat/coverage
+hardhat/.next/
+hardhat//out/
+hardhat//build
+hardhat/.DS_Store
+hardhat/*.pem
+hardhat/# debug
+hardhat/npm-debug.log*
+hardhat/yarn-debug.log*
+hardhat/yarn-error.log*
+hardhat/.pnpm-debug.log*
+hardhat/.env
+hardhat/.vercel
+hardhat/*.tsbuildinfo
+hardhat/next-env.d.ts
+hardhat/hardhat/node_modules/
+hardhat/cache
+hardhat/artifacts/
+hardhat/deployments/

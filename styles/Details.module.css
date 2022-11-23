@@ -1,0 +1,54 @@
+.container{
+    background-color: rgb(245, 241, 241);
+    margin: 2rem 2rem 2rem 2rem;
+    display: flex;
+    flex-wrap:'wrap';
+    width: 100%;
+  }
+  .price ,.quantity{
+   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+   margin-left: .2rem;
+  }
+  .price{
+    color: rgba(0, 0, 0, 0.786);
+    font-size: 1.5rem;
+    margin: 1rem;
+    width: 10rem;
+  }
+  .cardName{
+    color: rgba(0, 0, 0, 0.786);
+    font-size: 3rem;
+    margin: 1rem;
+  }
+  .image{
+    /* background-color: rgb(245, 242, 162);   */
+      transition: transform .2s;
+      border-radius: 1rem;
+      margin-bottom: 1.3rem ;
+  }
+  .additional{
+    display: flex;
+    flex-direction: column;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  .btnContainer{
+      display: flex;
+      flex-direction: row;
+      margin:1rem;  
+      justify-content: center;
+  }
+    .image {
+      /* background-color: rgb(245, 242, 162);   */
+      transition: transform .2s;
+      border-radius: 1rem;
+      margin-bottom: 1.3rem;
+    }
+  
+    .image:hover {
+      -ms-transform: scale(1.1);
+      /* IE 9 */
+      -webkit-transform: scale(1.1);
+      /* Safari 3-8 */
+      transform: scale(1.1);
+    }

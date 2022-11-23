@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.4.22 <0.9.0;
 
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract NftMarket is ERC721URIStorage, Ownable {
+contract NftMarket is ERC721URIStorage, ERC721Enumerable, Ownable {
     using Counters for Counters.Counter;
 
     struct NftItem {
@@ -13,6 +15,7 @@ contract NftMarket is ERC721URIStorage, Ownable {
         uint256 price;
         address creator;
         bool isListed;
+        string _tokenURI;
     }
 
     uint256 public listingPrice = 0.025 ether;
@@ -23,12 +26,6 @@ contract NftMarket is ERC721URIStorage, Ownable {
     mapping(string => bool) private _usedTokenURIs;
     mapping(uint256 => NftItem) private _idToNftItem;
 
-    mapping(address => mapping(uint256 => uint256)) private _ownedTokens;
-    mapping(uint256 => uint256) private _idToOwnedIndex;
-
-    uint256[] private _allNfts;
-    mapping(uint256 => uint256) private _idToNftIndex;
-
     event NftItemCreated(
         uint256 tokenId,
         uint256 price,
@@ -37,6 +34,40 @@ contract NftMarket is ERC721URIStorage, Ownable {
     );
 
     constructor() ERC721("CreaturesNFT", "CNFT") {}
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 batchSize
+    ) internal override(ERC721, ERC721Enumerable) {
+        super._beforeTokenTransfer(from, to, tokenId, batchSize);
+    }
+
+    function _burn(uint256 tokenId)
+        internal
+        override(ERC721, ERC721URIStorage)
+    {
+        super._burn(tokenId);
+    }
+
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    {
+        return super.tokenURI(tokenId);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {
+        return super.supportsInterface(interfaceId);
+    }
 
     function setListingPrice(uint256 newPrice) external onlyOwner {
         require(newPrice > 0, "Price must be at least 1 wei");
@@ -51,26 +82,12 @@ contract NftMarket is ERC721URIStorage, Ownable {
         return _listedItems.current();
     }
 
-    function tokenURIExists(string memory tokenURI) public view returns (bool) {
-        return _usedTokenURIs[tokenURI] == true;
-    }
-
-    function totalSupply() public view returns (uint256) {
-        return _allNfts.length;
-    }
-
-    function tokenByIndex(uint256 index) public view returns (uint256) {
-        require(index < totalSupply(), "Index out of bounds");
-        return _allNfts[index];
-    }
-
-    function tokenOfOwnerByIndex(address owner, uint256 index)
+    function tokenURIExists(string memory _tokenURI)
         public
         view
-        returns (uint256)
+        returns (bool)
     {
-        require(index < ERC721.balanceOf(owner), "Index out of bounds");
-        return _ownedTokens[owner][index];
+        return _usedTokenURIs[_tokenURI] == true;
     }
 
     function getAllNftsOnSale() public view returns (NftItem[] memory) {
@@ -110,12 +127,12 @@ contract NftMarket is ERC721URIStorage, Ownable {
         }
     }
 
-    function mintToken(string memory tokenURI, uint256 price)
+    function mintToken(string memory _tokenURI, uint256 price)
         public
         payable
         returns (uint256)
     {
-        require(!tokenURIExists(tokenURI), "Token URI already exists");
+        require(!tokenURIExists(_tokenURI), "Token URI already exists");
         require(
             msg.value == listingPrice,
             "Price must be equal to listing price"
@@ -127,9 +144,9 @@ contract NftMarket is ERC721URIStorage, Ownable {
         uint256 newTokenId = _tokenIds.current();
 
         _safeMint(msg.sender, newTokenId);
-        _setTokenURI(newTokenId, tokenURI);
-        _createNftItem(newTokenId, price);
-        _usedTokenURIs[tokenURI] = true;
+        _setTokenURI(newTokenId, _tokenURI);
+        _createNftItem(newTokenId, price, _tokenURI);
+        _usedTokenURIs[_tokenURI] = true;
 
         return newTokenId;
     }
@@ -167,71 +184,21 @@ contract NftMarket is ERC721URIStorage, Ownable {
         _listedItems.increment();
     }
 
-    function _createNftItem(uint256 tokenId, uint256 price) private {
+    function _createNftItem(
+        uint256 tokenId,
+        uint256 price,
+        string memory _tokenURI
+    ) private {
         require(price > 0, "Price must be at least 1 wei");
 
-        _idToNftItem[tokenId] = NftItem(tokenId, price, msg.sender, true);
+        _idToNftItem[tokenId] = NftItem(
+            tokenId,
+            price,
+            msg.sender,
+            false,
+            _tokenURI
+        );
 
-        emit NftItemCreated(tokenId, price, msg.sender, true);
-    }
-
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 tokenId
-    ) internal virtual override {
-        super._beforeTokenTransfer(from, to, tokenId);
-
-        if (from == address(0)) {
-            _addTokenToAllTokensEnumeration(tokenId);
-        } else if (from != to) {
-            _removeTokenFromOwnerEnumeration(from, tokenId);
-        }
-
-        if (to == address(0)) {
-            _removeTokenFromAllTokensEnumeration(tokenId);
-        } else if (to != from) {
-            _addTokenToOwnerEnumeration(to, tokenId);
-        }
-    }
-
-    function _addTokenToAllTokensEnumeration(uint256 tokenId) private {
-        _idToNftIndex[tokenId] = _allNfts.length;
-        _allNfts.push(tokenId);
-    }
-
-    function _addTokenToOwnerEnumeration(address to, uint256 tokenId) private {
-        uint256 length = ERC721.balanceOf(to);
-        _ownedTokens[to][length] = tokenId;
-        _idToOwnedIndex[tokenId] = length;
-    }
-
-    function _removeTokenFromOwnerEnumeration(address from, uint256 tokenId)
-        private
-    {
-        uint256 lastTokenIndex = ERC721.balanceOf(from) - 1;
-        uint256 tokenIndex = _idToOwnedIndex[tokenId];
-
-        if (tokenIndex != lastTokenIndex) {
-            uint256 lastTokenId = _ownedTokens[from][lastTokenIndex];
-
-            _ownedTokens[from][tokenIndex] = lastTokenId;
-            _idToOwnedIndex[lastTokenId] = tokenIndex;
-        }
-
-        delete _idToOwnedIndex[tokenId];
-        delete _ownedTokens[from][lastTokenIndex];
-    }
-
-    function _removeTokenFromAllTokensEnumeration(uint256 tokenId) private {
-        uint256 lastTokenIndex = _allNfts.length - 1;
-        uint256 tokenIndex = _idToNftIndex[tokenId];
-        uint256 lastTokenId = _allNfts[lastTokenIndex];
-
-        _allNfts[tokenIndex] = lastTokenId;
-        _idToNftIndex[lastTokenId] = tokenIndex;
-
-        delete _idToNftIndex[tokenId];
-        _allNfts.pop();
+        emit NftItemCreated(tokenId, price, msg.sender, false);
     }
 }

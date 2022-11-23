@@ -1,3 +1,7 @@
-export const abi = [];
+const contractAddresses = require("./addresses.json");
+const abi = require("./abi.json");
 
-export const contractAddress = "";
+module.exports = {
+  abi,
+  contractAddresses,
+};
