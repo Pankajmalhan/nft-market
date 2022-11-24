@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract NftMarket is ERC721URIStorage, ERC721Enumerable, Ownable {
     using Counters for Counters.Counter;
@@ -19,6 +20,7 @@ contract NftMarket is ERC721URIStorage, ERC721Enumerable, Ownable {
     }
 
     uint256 public listingPrice = 0.025 ether;
+    IERC20 public TFT;
 
     Counters.Counter private _listedItems;
     Counters.Counter private _tokenIds;
@@ -33,7 +35,7 @@ contract NftMarket is ERC721URIStorage, ERC721Enumerable, Ownable {
         bool isListed
     );
 
-    constructor() ERC721("CreaturesNFT", "CNFT") {}
+    constructor(address token) ERC721("CreaturesNFT", "CNFT") { TFT = IERC20(token); }
 
     function _beforeTokenTransfer(
         address from,
@@ -127,7 +129,7 @@ contract NftMarket is ERC721URIStorage, ERC721Enumerable, Ownable {
         }
     }
 
-    function getAllNfts() public view returns (NftItem[] memory) {
+function getAllNfts() public view returns (NftItem[] memory) {
         uint256 allItemsCounts = totalSupply();
         uint256 currentIndex = 0;
         NftItem[] memory items = new NftItem[](_tokenIds.current());
@@ -138,8 +140,8 @@ contract NftMarket is ERC721URIStorage, ERC721Enumerable, Ownable {
             currentIndex += 1;
         }
         return items;
-    }
-
+    }    
+    
     function mintToken(string memory _tokenURI, uint256 price)
         public
         payable
@@ -147,7 +149,7 @@ contract NftMarket is ERC721URIStorage, ERC721Enumerable, Ownable {
     {
         require(!tokenURIExists(_tokenURI), "Token URI already exists");
         require(
-            msg.value == listingPrice,
+            msg.value >= listingPrice,
             "Price must be equal to listing price"
         );
 
@@ -213,5 +215,21 @@ contract NftMarket is ERC721URIStorage, ERC721Enumerable, Ownable {
         );
 
         emit NftItemCreated(tokenId, price, msg.sender, false);
+    }
+
+    function buyNftwithTFT(uint256 tokenId) public payable {
+        uint256 price = _idToNftItem[tokenId].price;
+        address owner = ERC721.ownerOf(tokenId);
+        uint BuyerBalance = TFT.balanceOf(msg.sender);
+        uint256 total_token = (price * 10) * (10**18);
+
+        require(msg.sender != owner, "You already own this NFT");
+        require(BuyerBalance > total_token, "Please buy more tokens");
+
+        _idToNftItem[tokenId].isListed = false;
+        _listedItems.decrement();
+
+        _transfer(owner, msg.sender, tokenId);
+        TFT.transfer(owner, total_token);
     }
 }
