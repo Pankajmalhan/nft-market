@@ -25,8 +25,9 @@ contract TFTToken is ERC20Capped, ERC20Burnable, Ownable {
         ERC20Capped(10000000 * (10**decimals()))
     {
         uint256 ownerAmount = 100000 * (10**decimals());
-        freeFaucetAmount = 5 * (10**(decimals()));
+        freeFaucetAmount = 2 * (10**(decimals()));
         _mint(msg.sender, ownerAmount);
+        _transfer(msg.sender,address(this),(50000 * (10**decimals())));
         blockReward = reward * (10**decimals());
     }
 
@@ -64,7 +65,7 @@ contract TFTToken is ERC20Capped, ERC20Burnable, Ownable {
         );
 
         nextAccessTime[msg.sender] = block.timestamp + lockTime;
-        _mint(account, freeFaucetAmount);
+        _transfer(address(this), account, freeFaucetAmount);
     }
 
     function _mintMinerReward() internal {
@@ -116,4 +117,11 @@ contract TFTToken is ERC20Capped, ERC20Burnable, Ownable {
     function setWithdrawalAmount(uint256 amount) public onlyOwner {
         withdrawalAmount = amount * (10**18);
     }
+
+    function transferToken(address to, uint256 amount) external returns(bool) {
+        uint256 _amount = amount * 10 * (10**decimals());
+        super._transfer(msg.sender,to,_amount);
+        return true;
+    }
 }
+
