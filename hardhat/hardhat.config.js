@@ -2,7 +2,6 @@
 
 require("hardhat-gas-reporter");
 require("@nomiclabs/hardhat-etherscan");
-require("@nomicfoundation/hardhat-chai-matchers");
 require("dotenv").config();
 require("@nomiclabs/hardhat-ethers");
 require("solidity-coverage");
