@@ -12,6 +12,8 @@ import emptyImage from "../public/empty_state.webp";
 import Image from "next/image";
 import { Web3Context } from "../context/Web3";
 
+import { ethers } from "ethers";
+
 export const EmptyPage = () => {
   return (
     <div className="flex items-center flex-col">
@@ -117,7 +119,7 @@ const NotSoPrettyProfile = () => {
                 <RobotOutlined
                   style={{ fontSize: "2rem", marginRight: "1rem" }}
                 />{" "}
-                NFT's Bought
+                Buy TFT Token
               </a>
             </li>
             <li className="-mb-px mr-2 last:mr-0 flex-auto ">
@@ -168,6 +170,45 @@ const NotSoPrettyProfile = () => {
   );
 
   const ProfileCards = () => {
+    const { tokenContract, address } = useContext(Web3Context);
+
+    const [amount, setAmount] = useState(undefined);
+    const [tfttokenBalance, setBal] = useState(0);
+
+    const mintFreeTokens = async () => {
+      try {
+        let tx = await tokenContract.getFreeTokens(address);
+        await tx.wait();
+        console.log(tx);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    const buyTFTtoken = async () => {
+      try {
+        let tx = await tokenContract.getNewTokens(address, amount, {
+          value: ethers.utils.parseEther("3"),
+        });
+        await tx.wait();
+        console.log(tx);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    useEffect(() => {
+      const getBal = async () => {
+        try {
+          let tx = await tokenContract.balanceOf(address);
+          setBal(Number(tx._hex) / 10 ** 18);
+        } catch (e) {
+          console.log(e);
+        }
+      };
+      getBal();
+    }, []);
+
     return (
       <div className="flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded">
         <div className="px-4 py-5 flex-wrap">
@@ -185,7 +226,15 @@ const NotSoPrettyProfile = () => {
               <EmptyPage />
             </div>
             <div className={openTab === 3 ? "block" : "hidden"} id="link3">
-              <EmptyPage />
+              <h1> You have {tfttokenBalance} TFT tokens </h1>
+              <button onClick={mintFreeTokens}>Get Free tokens</button>
+              <button onClick={buyTFTtoken}>Buy tokens</button>
+              <input
+                type="number"
+                value={amount}
+                className="border-2"
+                onChange={(e) => setAmount(e.target.value)}
+              />
             </div>
           </div>
         </div>
