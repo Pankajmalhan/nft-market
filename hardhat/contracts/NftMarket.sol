@@ -127,6 +127,19 @@ contract NftMarket is ERC721URIStorage, ERC721Enumerable, Ownable {
         }
     }
 
+    function getAllNfts() public view returns (NftItem[] memory) {
+        uint256 allItemsCounts = totalSupply();
+        uint256 currentIndex = 0;
+        NftItem[] memory items = new NftItem[](_tokenIds.current());
+        for (uint256 i = 0; i < allItemsCounts; i++) {
+            uint256 tokenId = tokenByIndex(i);
+            NftItem storage item = _idToNftItem[tokenId];
+            items[currentIndex] = item;
+            currentIndex += 1;
+        }
+        return items;
+    }
+
     function mintToken(string memory _tokenURI, uint256 price)
         public
         payable
