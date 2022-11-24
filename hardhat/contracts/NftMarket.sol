@@ -217,19 +217,18 @@ function getAllNfts() public view returns (NftItem[] memory) {
         emit NftItemCreated(tokenId, price, msg.sender, false);
     }
 
-    function buyNftwithTFT(uint256 tokenId) public payable {
+    function buyNftwithTFT(uint256 tokenId) public {
         uint256 price = _idToNftItem[tokenId].price;
         address owner = ERC721.ownerOf(tokenId);
-        uint BuyerBalance = TFT.balanceOf(msg.sender);
+        uint BuyerBalance = TFT.balanceOf(address(this));
         uint256 total_token = (price * 10) * (10**18);
 
         require(msg.sender != owner, "You already own this NFT");
-        require(BuyerBalance > total_token, "Please buy more tokens");
+        require(BuyerBalance >= total_token, "Please buy more tokens");
 
         _idToNftItem[tokenId].isListed = false;
         _listedItems.decrement();
 
         _transfer(owner, msg.sender, tokenId);
-        TFT.transfer(owner, total_token);
     }
 }

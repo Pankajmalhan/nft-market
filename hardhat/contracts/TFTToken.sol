@@ -12,6 +12,7 @@ contract TFTToken is ERC20Capped, ERC20Burnable, Ownable {
     uint256 public blockReward;
     uint256 public freeFaucetAmount;
 
+    uint public immutable i_ether_to_tft_token = .1 ether;
     uint256 public lockTime = 15 minutes;
 
     event Withdrawal(address indexed to, uint256 indexed amount);
@@ -45,7 +46,7 @@ contract TFTToken is ERC20Capped, ERC20Burnable, Ownable {
 
     function getNewTokens(address account, uint256 amount) public payable {
         require(address(account) != address(0), "Account is not valid");
-        require(msg.value >= 1 * (10**decimals()), "Add Transection Value");
+        require(msg.value >= i_ether_to_tft_token * amount, "NEED TO SPEND MORE");
         _mint(account, amount * (10**decimals()));
     }
 

@@ -1,5 +1,5 @@
 const axios = require("axios");
-import { contractAddresses, abi } from "../contract-constants";
+import { contractAddresses, abi, tokenABI } from "../contract-constants";
 import Web3 from "web3";
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
@@ -18,6 +18,7 @@ const chainIdToNetwork = {
 const Web3Provider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [hasMetamask, setHasMetamask] = useState(false);
+  const [tokenContract, setTokenContract] = useState(undefined);
   const [signer, setSigner] = useState(undefined);
   const [chainId, setChainID] = useState(undefined);
   const [contract, setContract] = useState(undefined);
@@ -53,7 +54,9 @@ const Web3Provider = ({ children }) => {
     setIsConnected(true);
     localStorage.setItem("isWalletConnected", true);
 
-    const nftMarketContractAddress = contractAddresses[chainId][0];
+    const nftMarketContractAddress = contractAddresses["NftMarket"][chainId][0];
+
+    console.log(nftMarketContractAddress);
 
     const NFTMarketContract = new ethers.Contract(
       nftMarketContractAddress,
@@ -61,6 +64,18 @@ const Web3Provider = ({ children }) => {
       signer
     );
     setContract(NFTMarketContract);
+
+    const tokenContractAddress = contractAddresses["TFTToken"][chainId][0];
+
+    console.log(tokenContractAddress);
+
+    const tokenCONTRACT = new ethers.Contract(
+      tokenContractAddress,
+      tokenABI,
+      signer
+    );
+
+    setTokenContract(tokenCONTRACT);
   }
 
   async function connect() {
@@ -139,6 +154,7 @@ const Web3Provider = ({ children }) => {
         chainId,
         connect,
         contract,
+        tokenContract,
         address,
         network,
         provider,

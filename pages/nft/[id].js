@@ -8,10 +8,35 @@ import { Web3Context } from "../../context/Web3";
 import Web3 from "web3";
 
 const DetailPage = () => {
-  const { contract, isConnected, signer } = useContext(Web3Context);
+  const { contract, isConnected, signer, tokenContract } =
+    useContext(Web3Context);
 
   const router = useRouter();
   const nft = router.query;
+
+  const handleTFTBuy = async () => {
+    console.log("TFT BUY CKCed");
+    try {
+      if (isConnected) {
+        let contractWithSigner = tokenContract.connect(signer);
+        let tx = await contractWithSigner.transferToken(
+          contract.address,
+          nft.price
+        );
+        await tx.wait();
+
+        console.log(nft);
+
+        contractWithSigner = contract.connect(signer);
+        tx = await contractWithSigner.buyNftwithTFT(nft.tokenId);
+        await tx.wait();
+
+        console.log(tx);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   const handleBuyTokenETH = async () => {
     console.log("clicked");
@@ -98,6 +123,7 @@ const DetailPage = () => {
             className={
               "buyNow bg-gray-800 hover:bg-gray-400 text-white font-bold my-1 py-5 px-0 rounded-2xl w-4/12 m-6"
             }
+            onClick={() => handleTFTBuy()}
           >
             <DollarOutlined style={{ fontSize: "1.5rem" }} /> {nft.price - 2}{" "}
             TFT

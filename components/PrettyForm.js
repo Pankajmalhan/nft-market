@@ -50,7 +50,7 @@ const PrettyForm = () => {
     if (isAuthenticated && formData.jsonHash) {
       setIsMinted(true);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, formData.jsonHash]);
 
   const sendJsonToBackend = async (imageHash, formData) => {
     fetch("/api/upload/json", {
