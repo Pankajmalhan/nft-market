@@ -226,7 +226,49 @@ const NotSoPrettyProfile = () => {
               <EmptyPage />
             </div>
             <div className={openTab === 3 ? "block" : "hidden"} id="link3">
-              <h1> You have {tfttokenBalance} TFT tokens </h1>
+              <div className="flex flex-wrap my-8 mx-3 mb-6 justify-center">
+                <div>
+                  <div className="text-2xl antialiased font-semibold font-serif underline underline-offset-8">
+                    You have{" "}
+                    <span className="text-red-500">{tfttokenBalance}</span> TFT
+                    tokens
+                  </div>
+                  <button
+                    className="w-full px-2 py-3 mr-4 my-6 text-m font-medium text-center text-white bg-gray-800 rounded-lg"
+                    border-double
+                    border-4
+                    border-sky-500
+                    onClick={mintFreeTokens}
+                  >
+                    Get Free tokens
+                  </button>
+                </div>
+                <div className="w-full md:w-full my-12 px-3 mb-6 md:mb-0 flex justify-center">
+                  <label
+                    className=" font-bold mb-2 text-2xl mx-5  antialiased font-semibold font-serif"
+                    for="grid-first-name"
+                  >
+                    Buy tokens
+                  </label>
+                  <input
+                    className="block w-3/12 bg-gray-200 text-gray-700 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+                    id="grid-first-name"
+                    placeholder="number of tokens"
+                    onChange={(e) => setAmount(e.target.value)}
+                    type="number"
+                  />
+                </div>
+                <button
+                  className="w-3/12 px-2 py-3 mr-4 my-6 text-m font-medium text-center text-white bg-gray-800 rounded-lg"
+                  border-double
+                  border-4
+                  border-sky-500
+                  onClick={buyTFTtoken}
+                >
+                  Buy
+                </button>
+              </div>
+              {/* <h1> You have {tfttokenBalance} TFT tokens </h1>
               <button onClick={mintFreeTokens}>Get Free tokens</button>
               <button onClick={buyTFTtoken}>Buy tokens</button>
               <input
@@ -234,7 +276,7 @@ const NotSoPrettyProfile = () => {
                 value={amount}
                 className="border-2"
                 onChange={(e) => setAmount(e.target.value)}
-              />
+              /> */}
             </div>
           </div>
         </div>
