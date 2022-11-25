@@ -16,6 +16,7 @@ contract NftMarket is ERC721URIStorage, ERC721Enumerable, Ownable {
         uint256 price;
         address creator;
         bool isListed;
+        bool isSold;
         string _tokenURI;
     }
 
@@ -32,10 +33,13 @@ contract NftMarket is ERC721URIStorage, ERC721Enumerable, Ownable {
         uint256 tokenId,
         uint256 price,
         address creator,
-        bool isListed
+        bool isListed,
+        bool isSold
     );
 
-    constructor(address token) ERC721("CreaturesNFT", "CNFT") { TFT = IERC20(token); }
+    constructor(address token) ERC721("CreaturesNFT", "CNFT") {
+        TFT = IERC20(token);
+    }
 
     function _beforeTokenTransfer(
         address from,
@@ -129,19 +133,24 @@ contract NftMarket is ERC721URIStorage, ERC721Enumerable, Ownable {
         }
     }
 
-function getAllNfts() public view returns (NftItem[] memory) {
+    function getMyNfts() public view returns (NftItem[] memory) {
         uint256 allItemsCounts = totalSupply();
         uint256 currentIndex = 0;
         NftItem[] memory items = new NftItem[](_tokenIds.current());
         for (uint256 i = 0; i < allItemsCounts; i++) {
             uint256 tokenId = tokenByIndex(i);
             NftItem storage item = _idToNftItem[tokenId];
-            items[currentIndex] = item;
-            currentIndex += 1;
+            if (
+                item.creator == msg.sender ||
+                ERC721.ownerOf(tokenId) == msg.sender
+            ) {
+                items[currentIndex] = item;
+                currentIndex += 1;
+            }
         }
         return items;
-    }    
-    
+    }
+
     function mintToken(string memory _tokenURI, uint256 price)
         public
         payable
@@ -174,6 +183,7 @@ function getAllNfts() public view returns (NftItem[] memory) {
         require(msg.value >= price, "Please submit the asking price");
 
         _idToNftItem[tokenId].isListed = false;
+        _idToNftItem[tokenId].isSold = false;
         _listedItems.decrement();
 
         _transfer(owner, msg.sender, tokenId);
@@ -211,22 +221,24 @@ function getAllNfts() public view returns (NftItem[] memory) {
             price,
             msg.sender,
             false,
+            false,
             _tokenURI
         );
 
-        emit NftItemCreated(tokenId, price, msg.sender, false);
+        emit NftItemCreated(tokenId, price, msg.sender, false,false);
     }
 
     function buyNftwithTFT(uint256 tokenId) public {
         uint256 price = _idToNftItem[tokenId].price;
         address owner = ERC721.ownerOf(tokenId);
-        uint BuyerBalance = TFT.balanceOf(address(this));
+        uint256 BuyerBalance = TFT.balanceOf(address(this));
         uint256 total_token = (price * 10) * (10**18);
 
         require(msg.sender != owner, "You already own this NFT");
         require(BuyerBalance >= total_token, "Please buy more tokens");
 
         _idToNftItem[tokenId].isListed = false;
+         _idToNftItem[tokenId].isSold = true;
         _listedItems.decrement();
 
         _transfer(owner, msg.sender, tokenId);
